@@ -65,11 +65,14 @@ def start_game():
     max_atps = 6
     rem_atps = max_atps
     worddis = ["_" for i in word]
+    canvas.delete("all")
+    upd_dis()
 
 
-def upd_canvas():
+def upd_dis():
     wordlbl.config(text=" ".join(worddis))
     atplbl.config(text=f"Tentativas restantes: {rem_atps}")
+
 
 def guess_letter():
     global rem_atps
@@ -83,6 +86,44 @@ def guess_letter():
         msg.showwarning("Aviso", "Letra já foi sugerida.")
         return
     guesses.add(letter)
+    if letter in word:
+        for i, char in enumerate(word):
+            if char == letter:
+                worddis[i] = letter
+    else:
+        rem_atps -= 1
+        hangman()
+    upd_dis()
+    check_stat()
+
+
+def check_stat():
+    global rem_atps
+    if "_" not in worddis:
+        msg.showinfo("Parabéns!", "Você Ganhou!")
+        start_game()
+    elif rem_atps <= 0:
+        msg.showinfo("Perdeste!", f'A palavra é "{word}".')
+        start_game()
+
+
+def hangman():
+    if rem_atps == 5:
+        canvas.create_line(100, 280, 100, 50, width=2)
+        canvas.create_line(100, 50, 150, 50, width=2)
+        canvas.create_line(20, 280, 180, 280, width=2)
+    elif rem_atps == 4:
+        canvas.create_line(150, 50, 150, 100, width=2)
+    elif rem_atps == 3:
+        canvas.create_oval(130, 100, 170, 140, width=2)
+    elif rem_atps == 2:
+        canvas.create_line(150, 140, 150, 200, width=2)
+    elif rem_atps == 1:
+        canvas.create_line(150, 140, 130, 160, width=2)
+        canvas.create_line(150, 140, 170, 160, width=2)
+    elif rem_atps == 0:
+        canvas.create_line(150, 200, 130, 240, width=2)
+        canvas.create_line(150, 200, 170, 240)
 
 
 canvas = tk.Canvas(root, width=300, height=300)
@@ -95,11 +136,12 @@ enter = tk.Entry(root)
 enter.pack(padx=10)
 
 atplbl = tk.Label(root, text="", font="Fixedsys 12")
-atplbl.pack(padx = 10)
+atplbl.pack(padx=10)
 
-guessbtn = tk.Button(root, text="Feito!", font="Fixedsys 14")
+guessbtn = tk.Button(root, text="Feito!", font="Fixedsys 14", command=guess_letter)
 guessbtn.pack(padx=10)
 
-resetbtn = tk.Button(root, text="Reiniciar", font="Fixedsys 14")
+resetbtn = tk.Button(root, text="Reiniciar", font="Fixedsys 14", command=start_game)
 resetbtn.pack(padx=10)
+start_game()
 root.mainloop()
